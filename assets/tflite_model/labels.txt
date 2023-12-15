@@ -1,0 +1,4 @@
+anthracnose
+early-blight
+healthy
+leaf-spot

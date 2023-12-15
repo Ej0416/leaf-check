@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>30747254339-gpf2927n9n5hplrcbikq3fpia7oukqup.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.30747254339-gpf2927n9n5hplrcbikq3fpia7oukqup</string>
+	<key>API_KEY</key>
+	<string>AIzaSyClOub7JLvik8jpraAACts_wOAU3k2IvSs</string>
+	<key>GCM_SENDER_ID</key>
+	<string>30747254339</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.leafcheckProjectV2</string>
+	<key>PROJECT_ID</key>
+	<string>leaf-check-storage</string>
+	<key>STORAGE_BUCKET</key>
+	<string>leaf-check-storage.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:30747254339:ios:1c0f4cd346dbde628b7ef6</string>
+</dict>
+</plist>
