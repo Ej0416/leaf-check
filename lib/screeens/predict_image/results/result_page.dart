@@ -88,8 +88,8 @@ class _ResultPageState extends State<ResultPage> {
           name = 'Healthy';
           healthy++;
           break;
-        case 'invalid':
-          name = 'Invalid';
+        case 'unknown':
+          name = 'Unknown';
           invalid++;
           break;
         default:

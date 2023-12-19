@@ -41,7 +41,7 @@ class _MoreInfoState extends State<MoreInfo> {
       );
       debugPrint('healhty or invalid');
       debugPrint(notHeakthyOrInvalid.toString());
-    } else if (widget.title == 'Invalid') {
+    } else if (widget.title == 'Unknown') {
       setState(
         () {
           notHeakthyOrInvalid = true;
@@ -57,7 +57,7 @@ class _MoreInfoState extends State<MoreInfo> {
         chemical = desc['chemical'];
         classF = desc['class'];
       });
-      debugPrint('hhas disease');
+      debugPrint('has disease');
       debugPrint(notHeakthyOrInvalid.toString());
     }
   }
