@@ -6,6 +6,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:leafcheck_project_v2/screeens/dash_board/dashboard_screen.dart';
 import 'package:leafcheck_project_v2/screeens/predict_image/take_images/preview_images.dart';
+import 'package:tflite/tflite.dart';
 
 import 'camera_preview.dart';
 import 'confimr_identify.dart';
@@ -26,6 +27,7 @@ class _TakePicScreenState extends State<TakePicScreen> {
   XFile? image;
   final _picker = ImagePicker();
   late bool _isLoading = false;
+  int notALeafImg = 0;
 
   loadCamera() async {
     cameras = await availableCameras();
@@ -42,8 +44,44 @@ class _TakePicScreenState extends State<TakePicScreen> {
     }
   }
 
+  late List _result;
+  String confidence = '';
+  String name = '';
+  File? _image;
+
+  loadModel() async {
+    var result = await Tflite.loadModel(
+      model: "assets/leaf_not/tf_lite_model.tflite",
+      labels: "assets/leaf_not/labels.txt",
+    );
+  }
+
+  predict(File file) async {
+    debugPrint(
+        '-------------------------preiction start------------------------');
+    try {
+      var res = await Tflite.runModelOnImage(
+        path: file.path,
+        // defaults to 0.1
+      );
+
+      setState(() {
+        _result = res!;
+        name = _result[0]["label"];
+        confidence = _result != null
+            ? "${(_result[0]["confidence"] * 100).toString().substring(0, 2)}%"
+            : "";
+      });
+    } catch (e) {
+      debugPrint("there is an error: $e");
+    }
+
+    debugPrint(_result.toString());
+  }
+
   @override
   void initState() {
+    loadModel();
     loadCamera();
     super.initState();
   }
@@ -96,6 +134,8 @@ class _TakePicScreenState extends State<TakePicScreen> {
           debugPrint("--------------image taken------------------");
 
           setState(() {
+            _image = File(image!.path);
+            predict(_image!);
             imageList.add(image!);
           });
           await Future.delayed(const Duration(milliseconds: 650));
@@ -279,17 +319,17 @@ class _TakePicScreenState extends State<TakePicScreen> {
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Text(
-                    "Loading..Stay Put...",
+                    "Not a Leaf Image ${notALeafImg.toString()}",
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 50,
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 50),
-                  SpinKitSquareCircle(
+                  const SizedBox(height: 50),
+                  const SpinKitSquareCircle(
                     color: Color.fromRGBO(43, 219, 60, 1),
                     // trackColor: Color.fromARGB(255, 89, 254, 34),
                     // waveColor: Color.fromARGB(255, 16, 104, 4),

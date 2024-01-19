@@ -56,3 +56,5 @@ flutter:
         - assets/home/
         - assets/tflite_model/labels.txt
         - assets/tflite_model/tf_lite_model.tflite
+        - assets/leaf_not/labels.txt
+        - assets/leaf_not/tf_lite_model.tflite
