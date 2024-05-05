@@ -19,39 +19,30 @@ class ResultBarGraph extends StatefulWidget {
 }
 
 class _ResultBarGraphState extends State<ResultBarGraph> {
-  late int maxy = 0;
+  late int maxy = 100;
 
-  maxYVal() {
-    if (widget.maxNum > 30) {
-      setState(() {
-        maxy = widget.maxNum + 10;
-      });
-    } else {
-      setState(() {
-        maxy = 30;
-      });
-    }
-  }
+  // maxYVal() {
+  //   if (widget.maxNum > 30) {
+  //     setState(() {
+  //       maxy = widget.maxNum + 10;
+  //     });
+  //   } else {
+  //     setState(() {
+  //       maxy = 70;
+  //     });
+  //   }
+  // }
 
   @override
   void initState() {
-    maxYVal();
+    // maxYVal();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     BarData barData = BarData(
-      firstAmount: widget.quantityPerClass[0].toDouble(),
-      secondAmount: widget.quantityPerClass[1].toDouble(),
-      thirdAmount: widget.quantityPerClass[2].toDouble(),
-      fourthAmount: widget.quantityPerClass[3].toDouble(),
-      fifthAmount: widget.quantityPerClass[4].toDouble(),
-      // sixthAmount: quantityPerClass[5].toDouble(),
-      // seventhAmount: quantityPerClass[6].toDouble(),
-      // eightAmount: quantityPerClass[7].toDouble(),
-      // ninethAmount: quantityPerClass[8].toDouble(),
-      // tenthAmount: quantityPerClass[9].toDouble(),
+      amounts: widget.quantityPerClass,
     );
 
     barData.intialzedBarData();
@@ -62,9 +53,6 @@ class _ResultBarGraphState extends State<ResultBarGraph> {
         minY: 0,
         barTouchData: BarTouchData(
           touchTooltipData: BarTouchTooltipData(
-              // tooltipBgColor: Theme.of(context).cardTheme.color,
-              // tooltipPadding: const EdgeInsets.all(2),
-              // direction: TooltipDirection.top,
               rotateAngle: 0,
               getTooltipItem: (
                 BarChartGroupData group,
@@ -98,6 +86,7 @@ class _ResultBarGraphState extends State<ResultBarGraph> {
                 if (value.toInt() >= 0 &&
                     value.toInt() < widget.dateList.length) {
                   text = Text(widget.dateList[value.toInt()]);
+                  debugPrint(widget.dateList.toString());
                 }
                 return SideTitleWidget(axisSide: meta.axisSide, child: text);
               },
@@ -112,7 +101,7 @@ class _ResultBarGraphState extends State<ResultBarGraph> {
                   BarChartRodData(
                     toY: data.y,
                     color: Colors.green.shade400,
-                    width: 50,
+                    width: 45,
                     borderRadius: BorderRadius.zero,
                     // backDrawRodData: BackgroundBarChartRodData(
                     //   show: true,

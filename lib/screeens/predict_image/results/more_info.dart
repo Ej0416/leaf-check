@@ -22,8 +22,8 @@ class MoreInfo extends StatefulWidget {
 class _MoreInfoState extends State<MoreInfo> {
   var db = FirebaseFirestore.instance;
   late String description = '';
-  late String organic = '';
-  late String chemical = '';
+  late List organic = [];
+  late List chemical = [];
   late String classF = '';
   late bool notHeakthyOrInvalid = false;
 
@@ -97,13 +97,14 @@ class _MoreInfoState extends State<MoreInfo> {
         children: [
           Align(
             alignment: Alignment.topCenter,
-            child: SizedBox(
+            child: Container(
+              color: Colors.green.shade400,
               height: MediaQuery.of(context).size.height * .4,
               width: MediaQuery.of(context).size.width,
               child: Image.file(
                 File(widget.img.path),
                 filterQuality: FilterQuality.medium,
-                fit: BoxFit.fill,
+                fit: BoxFit.contain,
               ),
             ),
           ),
@@ -117,7 +118,7 @@ class _MoreInfoState extends State<MoreInfo> {
                 boxShadow: [
                   BoxShadow(
                     color: const Color(0x00000000).withOpacity(1),
-                    offset: const Offset(0, -2),
+                    offset: const Offset(0, 3),
                     blurRadius: 4,
                     spreadRadius: -2,
                   )
@@ -259,9 +260,11 @@ class _MoreInfoState extends State<MoreInfo> {
     );
   }
 
-  Container content(String content, String title) {
+  Container content(dynamic content, String title) {
+    debugPrint('content value if arrays${content.length.toString()}');
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
+      width: MediaQuery.of(context).size.width,
       // color: Colors.green,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -273,15 +276,33 @@ class _MoreInfoState extends State<MoreInfo> {
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
+            textAlign: TextAlign.start,
           ),
           const SizedBox(height: 10),
-          Text(
-            content,
-            style: const TextStyle(
-              fontSize: 18,
-            ),
-            textAlign: TextAlign.justify,
-          ),
+          content is List
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (int i = 0; i < content.length; i++)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: Text(
+                          "\u25cf ${content[i]} \n",
+                          style: const TextStyle(
+                            fontSize: 18,
+                          ),
+                          textAlign: TextAlign.justify,
+                        ),
+                      ),
+                  ],
+                )
+              : Text(
+                  content.toString(),
+                  style: const TextStyle(
+                    fontSize: 18,
+                  ),
+                  textAlign: TextAlign.justify,
+                ),
         ],
       ),
     );

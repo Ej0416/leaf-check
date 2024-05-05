@@ -37,7 +37,7 @@ class ResultCard extends StatelessWidget {
           ),
         ),
         title: Text(
-          "$predictionCond \n $predictionconf".toUpperCase(),
+          predictionCond.toUpperCase(),
           style: const TextStyle(fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),

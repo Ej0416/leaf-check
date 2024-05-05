@@ -23,10 +23,15 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
   final TextEditingController signUpEmailCtrl = TextEditingController();
   final TextEditingController signUpPasswordCtrl = TextEditingController();
   final TextEditingController signUpConfirmPassCtrl = TextEditingController();
+  // String countryValue = "";
+  // String? regionValue = "";
+  // String? cityValue = "";
+  // String? address = "";
 
   bool isLoading = false;
   bool isTaken = false;
-
+  bool _obscureTextPassword = true;
+  bool _obscureTextConfirmPassword = true;
   @override
   void dispose() {
     signUpConfirmPassCtrl.dispose();
@@ -66,254 +71,356 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
     return Form(
       key: _signupFormKey,
       child: Container(
-        height: 550,
+        height: 620,
+        // color: Colors.amber,
         padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              children: [
-                TextFormField(
-                  controller: signUpUserNameCtrl,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10),
-                      ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                children: [
+                  const Text(
+                    "Register",
+                    style: TextStyle(
+                      color: Color(0xff2A6041),
+                      fontSize: 30,
+                      fontWeight: FontWeight.w700,
                     ),
-                    labelText: "Username",
-                    hintText: "Enter Username",
-                    prefixIcon: Icon(Icons.person),
                   ),
-                  validator: (username) {
-                    if (username!.isEmpty) {
-                      showCustomSnackBar(context, "Username is empty");
-                      return "Username field is empty";
-                    }
+                  const Text(
+                    "Create your account",
+                    style: TextStyle(
+                      color: Color(0xff2A6041),
+                      fontSize: 16,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextFormField(
+                    controller: signUpUserNameCtrl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        ),
+                      ),
+                      labelText: "Username",
+                      hintText: "Enter Username",
+                      prefixIcon: Icon(Icons.person),
+                    ),
+                    validator: (username) {
+                      if (username!.isEmpty) {
+                        showCustomSnackBar(context, "Username is empty");
+                        return "Username field is empty";
+                      }
 
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: signUpEmailCtrl,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10),
-                      ),
-                    ),
-                    labelText: "E-mail",
-                    hintText: "Enter your registered E-mail",
-                    prefixIcon: Icon(Icons.email),
+                      return null;
+                    },
                   ),
-                  validator: (email) {
-                    if (!EmailValidator.validate(email!)) {
-                      showCustomSnackBar(context, "Invalid Email");
-                      return "Email is invalid";
-                    }
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: signUpEmailCtrl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        ),
+                      ),
+                      labelText: "E-mail",
+                      hintText: "Enter your registered E-mail",
+                      prefixIcon: Icon(Icons.email),
+                    ),
+                    validator: (email) {
+                      if (!EmailValidator.validate(email!)) {
+                        showCustomSnackBar(context, "Invalid Email");
+                        return "Email is invalid";
+                      }
 
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: signUpPasswordCtrl,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10),
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: signUpPasswordCtrl,
+                    obscureText: _obscureTextPassword,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        ),
+                      ),
+                      labelText: "Password",
+                      hintText: "Enter your password",
+                      prefixIcon: const Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _obscureTextPassword = !_obscureTextPassword;
+                          });
+                        },
+                        icon: Icon(
+                          _obscureTextPassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
-                    labelText: "Password",
-                    hintText: "Enter your password",
-                    prefixIcon: Icon(Icons.lock),
+                    validator: (password) {
+                      debugPrint("${password!.length}");
+                      if (password.length < 8) {
+                        showCustomSnackBar(
+                            context, "Password must be 8 characters long");
+                        return "Password must be 8 characters long";
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (password) {
-                    debugPrint("${password!.length}");
-                    if (password.length < 8) {
-                      showCustomSnackBar(
-                          context, "Password must be 8 characters long");
-                      return "Password must be 8 characters long";
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: signUpConfirmPassCtrl,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: signUpConfirmPassCtrl,
+                    obscureText: _obscureTextConfirmPassword,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        ),
+                      ),
+                      labelText: "Confirm Password",
+                      hintText: "Confirm your password",
+                      prefixIcon: const Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _obscureTextConfirmPassword =
+                                !_obscureTextConfirmPassword;
+                          });
+                        },
+                        icon: Icon(
+                          _obscureTextConfirmPassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
-                    labelText: "Confirm Password",
-                    hintText: "Confirm you password",
-                    prefixIcon: Icon(Icons.lock),
+                    validator: (confirmPassword) {
+                      if (confirmPassword != signUpPasswordCtrl.text) {
+                        showCustomSnackBar(context,
+                            "Password and Confirm Password \ndo not match");
+                        return "Passwords don't match";
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (confirmPassword) {
-                    if (confirmPassword != signUpPasswordCtrl.text) {
-                      showCustomSnackBar(context,
-                          "Password and Confirm Passwod \ndoes not match");
-                      return "Passwords does`nt match";
-                    }
-                    return null;
-                  },
-                ),
-              ],
-            ),
-            const Text(
-              "By signing you agree to our Term of use and privacy",
-              style: TextStyle(
-                color: Color.fromARGB(120, 62, 62, 61),
+
+                  // TextFormField(
+                  //   controller: signUpPasswordCtrl,
+                  //   obscureText: true,
+                  //   decoration: const InputDecoration(
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.all(
+                  //         Radius.circular(10),
+                  //       ),
+                  //     ),
+                  //     labelText: "Password",
+                  //     hintText: "Enter your password",
+                  //     prefixIcon: Icon(Icons.lock),
+                  //   ),
+                  //   validator: (password) {
+                  //     debugPrint("${password!.length}");
+                  //     if (password.length < 8) {
+                  //       showCustomSnackBar(
+                  //           context, "Password must be 8 characters long");
+                  //       return "Password must be 8 characters long";
+                  //     }
+                  //     return null;
+                  //   },
+                  // ),
+                  // const SizedBox(height: 10),
+                  // TextFormField(
+                  //   controller: signUpConfirmPassCtrl,
+                  //   obscureText: true,
+                  //   decoration: const InputDecoration(
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.all(
+                  //         Radius.circular(10),
+                  //       ),
+                  //     ),
+                  //     labelText: "Confirm Password",
+                  //     hintText: "Confirm you password",
+                  //     prefixIcon: Icon(Icons.lock),
+                  //   ),
+                  //   validator: (confirmPassword) {
+                  //     if (confirmPassword != signUpPasswordCtrl.text) {
+                  //       showCustomSnackBar(context,
+                  //           "Password and Confirm Passwod \ndoes not match");
+                  //       return "Passwords does`nt match";
+                  //     }
+                  //     return null;
+                  //   },
+                  // ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 20),
-            Column(
-              children: [
-                SizedBox(
-                  height: 60,
-                  width: double.infinity,
-                  child: isLoading
-                      ? Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 160,
-                            vertical: 15,
-                          ),
-                          child: const CircularProgressIndicator(),
-                        )
-                      : ElevatedButton(
-                          onPressed: () async {
-                            setState(() {
-                              isLoading = true;
-                              isEmailExist();
-                            });
-                            if (isTaken == true) {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return const AlertDialog(
-                                      title: Text(
-                                        'Email Taken',
-                                        style: TextStyle(
-                                          color: Colors.amber,
-                                        ),
-                                      ),
-                                      content: Text(
-                                        'Email Already Taken',
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    );
-                                  });
-                              setState(() {
-                                isLoading = false;
-                              });
-                            } else if (!_signupFormKey.currentState!
-                                .validate()) {
-                              debugPrint("..................not goods");
-                              setState(() {
-                                isLoading = false;
-                              });
-                            } else {
-                              try {
-                                debugPrint("...................all goods");
-                                final isSaved = await FirebaseHelper.saveUser(
-                                  email: signUpEmailCtrl.text,
-                                  password: signUpConfirmPassCtrl.text,
-                                  name: signUpUserNameCtrl.text,
-                                );
-
-                                _signupFormKey.currentState!.reset();
-                                signUpUserNameCtrl.text = "";
-                                signUpEmailCtrl.text = "";
-                                signUpPasswordCtrl.text = "";
-                                signUpConfirmPassCtrl.text = "";
-
-                                debugPrint(isSaved.toString());
-
-                                if (isTaken == true) {
-                                  // ignore: use_build_context_synchronously
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return const AlertDialog(
-                                          title: Text(
-                                            'Email Already Taken',
-                                            style: TextStyle(
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                          content: Text(
-                                            'Please choose anoher email as this email is already being use by another user.',
-                                            style: TextStyle(
-                                              fontSize: 20,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        );
-                                      });
-                                  setState(() {
-                                    isLoading = false;
-                                  });
-                                } else {
-                                  setState(() {
-                                    isLoading = false;
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (BuildContext context) {
-                                      return LogInPage();
-                                    }));
-                                  });
-                                }
-                              } catch (e) {
-                                showCustomSnackBar(context, e.toString());
-                              }
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(210, 99, 212, 167),
+              const Text(
+                "By signing you agree to our Term of use and privacy",
+                style: TextStyle(
+                  color: Color.fromARGB(120, 62, 62, 61),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Column(
+                children: [
+                  SizedBox(
+                    height: 60,
+                    width: double.infinity,
+                    child: isLoading
+                        ? Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
+                              horizontal: 160,
                               vertical: 15,
                             ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
+                            child: const CircularProgressIndicator(),
+                          )
+                        : ElevatedButton(
+                            onPressed: () async {
+                              setState(() {
+                                isLoading = true;
+                                isEmailExist();
+                              });
+                              if (isTaken == true) {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return const AlertDialog(
+                                        title: Text(
+                                          'Email Taken',
+                                          style: TextStyle(
+                                            color: Colors.amber,
+                                          ),
+                                        ),
+                                        content: Text(
+                                          'Email Already Taken',
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      );
+                                    });
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              } else if (!_signupFormKey.currentState!
+                                  .validate()) {
+                                debugPrint("..................not goods");
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              } else {
+                                try {
+                                  debugPrint("...................all goods");
+                                  final isSaved = await FirebaseHelper.saveUser(
+                                    email: signUpEmailCtrl.text,
+                                    password: signUpConfirmPassCtrl.text,
+                                    name: signUpUserNameCtrl.text,
+                                    // country: countryValue,
+                                    // region: regionValue!,
+                                    // city: cityValue!,
+                                  );
+
+                                  _signupFormKey.currentState!.reset();
+                                  signUpUserNameCtrl.text = "";
+                                  signUpEmailCtrl.text = "";
+                                  signUpPasswordCtrl.text = "";
+                                  signUpConfirmPassCtrl.text = "";
+
+                                  debugPrint(isSaved.toString());
+
+                                  if (isTaken == true) {
+                                    // ignore: use_build_context_synchronously
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return const AlertDialog(
+                                            title: Text(
+                                              'Email Already Taken',
+                                              style: TextStyle(
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                            content: Text(
+                                              'Please choose anoher email as this email is already being use by another user.',
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          );
+                                        });
+                                    setState(() {
+                                      isLoading = false;
+                                    });
+                                  } else {
+                                    setState(() {
+                                      isLoading = false;
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (BuildContext context) {
+                                        return LogInPage();
+                                      }));
+                                    });
+                                  }
+                                } catch (e) {
+                                  showCustomSnackBar(context, e.toString());
+                                }
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(210, 99, 212, 167),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 15,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                            child: const Text(
+                              "Register",
+                              style: TextStyle(fontSize: 18),
                             ),
                           ),
-                          child: const Text(
-                            "Register",
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ),
-                ),
-                Container(
-                  // margin: const EdgeInsets.only(top: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Already have an account?"),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (BuildContext context) {
-                            return LogInPage();
-                          }));
-                        },
-                        child: const Text("Log-in"),
-                      ),
-                    ],
                   ),
-                ),
-              ],
-            ),
-          ],
+                  SizedBox(
+                    // margin: const EdgeInsets.only(top: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("Already have an account?"),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (BuildContext context) {
+                              return LogInPage();
+                            }));
+                          },
+                          child: const Text("Log-in"),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

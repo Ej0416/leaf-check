@@ -11,6 +11,9 @@ class FirebaseHelper {
     required String email,
     required String password,
     required String name,
+    // required String country,
+    // required String region,
+    // required String city,
   }) async {
     try {
       final UserCredential credential =
@@ -28,6 +31,9 @@ class FirebaseHelper {
           uid: credential.user!.uid,
           name: name,
           email: email,
+          // country: country,
+          // region: region,
+          // city: city,
         );
 
         await userRef.set(userModel.toJson());

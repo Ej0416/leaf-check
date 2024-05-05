@@ -19,6 +19,7 @@ class LoginFormWidget extends StatefulWidget {
 class _LoginFormWidgetState extends State<LoginFormWidget> {
   final TextEditingController logInEmailCtrl = TextEditingController();
   final TextEditingController logInPasswordCtrl = TextEditingController();
+  bool _obscureText = true;
 
   @override
   void dispose() {
@@ -59,16 +60,27 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                 const SizedBox(height: 10),
                 TextFormField(
                   controller: logInPasswordCtrl,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
+                  obscureText: _obscureText,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(
                         Radius.circular(10),
                       ),
                     ),
                     labelText: "Password",
                     hintText: "Enter your password",
-                    prefixIcon: Icon(Icons.lock),
+                    prefixIcon: const Icon(Icons.lock),
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
+                      icon: Icon(
+                        _obscureText ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey,
+                      ),
+                    ),
                   ),
                 ),
                 Row(
@@ -79,7 +91,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (BuildContext context) {
-                              return ForgetPassPage();
+                              return const ForgetPassPage();
                             },
                           ),
                         );

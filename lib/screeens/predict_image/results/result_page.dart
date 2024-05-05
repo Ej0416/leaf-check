@@ -1,16 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:leafcheck_project_v2/screeens/dash_board/dashboard_screen.dart';
 import 'package:leafcheck_project_v2/styles/font_styles.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tflite/tflite.dart';
 
 import '../../../services/firebase_helper.dart';
-import '../take_images/take_pic_screen.dart';
 import 'result_card.dart';
 
 class ResultPage extends StatefulWidget {
-  const ResultPage({super.key, required this.imageList});
+  const ResultPage({
+    super.key,
+    required this.imageList,
+  });
 
   final List<XFile> imageList;
 
@@ -100,8 +104,13 @@ class _ResultPageState extends State<ResultPage> {
     }
     debugPrint('finishing predictions..............');
     debugPrint(allResult.toString());
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
     addRecentData();
-    isDone = true;
+    setState(() {
+      isDone = true;
+    });
+    debugPrint('finishing predictions..............$isDone');
   }
 
   addRecentData() {
@@ -162,7 +171,7 @@ class _ResultPageState extends State<ResultPage> {
               onPressed: () {
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (BuildContext context) {
-                  return const TakePicScreen();
+                  return const DashbardScreen();
                 }));
               },
             ),

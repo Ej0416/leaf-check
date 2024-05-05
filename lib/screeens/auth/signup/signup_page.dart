@@ -27,35 +27,32 @@ class SignUpPage extends StatelessWidget {
           elevation: 0,
         ),
         body: SingleChildScrollView(
-          child: Column(
+          child: Stack(
+            alignment: Alignment.topCenter,
             children: [
               ClipPath(
                 clipper: WaveClipper(),
                 child: Container(
-                  height: 200,
+                  height: 170,
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     color: Color.fromARGB(210, 99, 212, 167),
                   ),
                 ),
               ),
-              const Text(
-                "Register",
-                style: TextStyle(
-                  color: Color(0xff2A6041),
-                  fontSize: 30,
-                  fontWeight: FontWeight.w700,
+              SizedBox(
+                height: MediaQuery.of(context).size.height,
+                // color: Colors.blue,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    SizedBox(
+                      height: 100,
+                    ),
+                    SignupFormWidget(),
+                  ],
                 ),
               ),
-              const Text(
-                "Create your account",
-                style: TextStyle(
-                  color: Color(0xff2A6041),
-                  fontSize: 16,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-              const SignupFormWidget(),
             ],
           ),
         ));

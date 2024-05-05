@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:leafcheck_project_v2/screeens/predict_image/results/result_page.dart';
 
 class ConfirmIdentifyScreen extends StatefulWidget {
-  const ConfirmIdentifyScreen({super.key, required this.imageList});
+  const ConfirmIdentifyScreen({
+    super.key,
+    required this.imageList,
+  });
 
   final List<XFile> imageList;
 

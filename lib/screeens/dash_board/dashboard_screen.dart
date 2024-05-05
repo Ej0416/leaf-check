@@ -42,17 +42,14 @@ class _DashbardScreenState extends State<DashbardScreen> {
   List<Map<String, dynamic>> recentYield = [];
   List<String> dateList = [];
   List<String> yieldList = [];
-
-  TextEditingController field1Controller = TextEditingController();
-  TextEditingController field2Controller = TextEditingController();
-  TextEditingController field3Controller = TextEditingController();
-  TextEditingController field4Controller = TextEditingController();
-  TextEditingController field5Controller = TextEditingController();
+  Map<DateTime, Map<String, int>> totalsByDate = {};
 
   getDates() {
     for (var i = 0; i < recentYield.length; i++) {
       Timestamp t = recentYield[i]['date'];
+      int daysToAdd = recentYield[i]['interval'] ?? 1;
       DateTime d = t.toDate();
+      d = d.add(Duration(days: daysToAdd));
       String date = DateFormat.MMMd().format(d);
       setState(() {
         dateList.add(date);
@@ -61,12 +58,6 @@ class _DashbardScreenState extends State<DashbardScreen> {
     }
 
     setState(() {
-      field1Controller.text = yieldList[0];
-      field2Controller.text = yieldList[1];
-      field3Controller.text = yieldList[2];
-      field4Controller.text = yieldList[3];
-      field5Controller.text = yieldList[4];
-
       List<int> intList = yieldList.map((str) => int.parse(str)).toList();
       maxNumber = intList.reduce(
           (currentMax, number) => currentMax > number ? currentMax : number);
@@ -75,44 +66,17 @@ class _DashbardScreenState extends State<DashbardScreen> {
     debugPrint(maxNumber.toString());
   }
 
-  updateYields() {
-    var query = FirebaseFirestore.instance
-        .collection('recent_yield_prediction')
-        .orderBy('date', descending: true)
-        .limit(5);
-
-    query.get().then((querySnapshot) {
-      int index = 0;
-      for (var doc in querySnapshot.docs) {
-        String documentID = doc.id;
-        String yieldValue = yieldList[index];
-
-        FirebaseFirestore.instance
-            .collection('recent_yield_prediction')
-            .doc(documentID)
-            .update({
-          'yield': yieldValue,
-        }).then((_) {
-          debugPrint('Yield updated successfully in document $documentID');
-        }).catchError((error) {
-          debugPrint('Error updating yield: $error');
-        });
-
-        index++; // Move to the next yield value
-      }
-    }).catchError((error) {
-      debugPrint('Error getting documents: $error');
-    });
-  }
-
   Future getRecents() async {
     try {
       QuerySnapshot qs = await FirebaseFirestore.instance
           .collection('recents_identification')
+          .where('userId', isEqualTo: uid)
+          .orderBy('date', descending: true)
           .get();
       // .where('userId', isEqualTo: uid)
       var query = FirebaseFirestore.instance
           .collection('recent_yield_prediction')
+          .where('userId', isEqualTo: uid)
           .orderBy('date', descending: true)
           .limit(5); // Retrieve the last 96(4 days) entries
 
@@ -134,7 +98,25 @@ class _DashbardScreenState extends State<DashbardScreen> {
     } catch (e) {
       debugPrint('Erro fetfching documents: $e');
     }
-    // return recents;
+    getTotalByDate();
+    debugPrint('recents function run successfully');
+  }
+
+  getTotalByDate() {
+    for (var item in recents) {
+      DateTime date = DateTime(item['date']!.toDate().year,
+          item['date']!.toDate().month, item['date']!.toDate().day);
+      Map<String, int> totals = totalsByDate[date] ?? {};
+      item.forEach((key, value) {
+        if (key != 'date' && key != 'userId') {
+          totals[key] = (totals[key] ?? 0) + (value as int? ?? 0);
+        }
+      });
+
+      totalsByDate[date] = totals;
+    }
+
+    debugPrint('test function run successfully');
   }
 
   getUsername() async {
@@ -177,6 +159,10 @@ class _DashbardScreenState extends State<DashbardScreen> {
     forecastEarlyBlight(avgRain1h.toString(), avgHumidity.toString());
     forecastAnthrachnose(
         avgTemp.toString(), avgHumidity.toString(), avgRain1h.toString());
+
+    debugPrint("Get last entires ran fine");
+    debugPrint(
+        "${avgTemp.toString()}, ${avgHumidity.toString()}, ${avgRain1h.toString()}");
   }
 
   Future forecastLeafSpot(rain1h) async {
@@ -270,11 +256,6 @@ class _DashbardScreenState extends State<DashbardScreen> {
     isSwap;
     recents;
     recentYield;
-    field1Controller;
-    field2Controller;
-    field3Controller;
-    field4Controller;
-    field5Controller;
     super.dispose();
   }
 
@@ -294,16 +275,13 @@ class _DashbardScreenState extends State<DashbardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
+                      width: MediaQuery.of(context).size.width,
                       margin:
-                          const EdgeInsets.only(left: 20, top: 10, bottom: 10),
-                      child: GestureDetector(
-                        onTap: () {
-                          debugPrint((probability[0] / 100).toString());
-                        },
-                        child: Text(
-                          'Disease Forecast',
-                          style: fonts.titleFont,
-                        ),
+                          const EdgeInsets.only(left: 0, top: 10, bottom: 10),
+                      child: Text(
+                        'Likelihood of Disease Occurance \n(Disease Forecast)',
+                        style: fonts.titleFont,
+                        textAlign: TextAlign.center,
                       ),
                     ),
                     CarouselSlider.builder(
@@ -330,8 +308,22 @@ class _DashbardScreenState extends State<DashbardScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        IconButton(
+                          onPressed: () {
+                            setState(() {
+                              isSwap = !isSwap;
+                            });
+                          },
+                          icon: const Icon(
+                            Icons.arrow_circle_left_rounded,
+                            size: 40,
+                            color: Color(0xff465362),
+                          ),
+                        ),
                         Text(
-                          isSwap ? 'Predict Yield ' : "Tend to your Crop",
+                          isSwap
+                              ? 'Yield Prediction'
+                              : "Disease Identification",
                           style: fonts.titleFont,
                         ),
                         IconButton(
@@ -341,7 +333,7 @@ class _DashbardScreenState extends State<DashbardScreen> {
                             });
                           },
                           icon: const Icon(
-                            Icons.swap_horizontal_circle_sharp,
+                            Icons.arrow_circle_right_rounded,
                             size: 40,
                             color: Color(0xff465362),
                           ),
@@ -357,22 +349,23 @@ class _DashbardScreenState extends State<DashbardScreen> {
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    margin: const EdgeInsets.only(left: 20),
+                  SizedBox(
                     child: Container(
+                      // color: Colors.amber,
+                      width: MediaQuery.of(context).size.width,
                       margin: const EdgeInsets.only(bottom: 10),
                       child: GestureDetector(
                         onTap: () {
-                          debugPrint(recentYield[4]['date'].toString());
-                          debugPrint(dateList.toString());
-                          debugPrint(recentYield.length.toString());
+                          debugPrint(uid);
                         },
                         child: Text(
                           isSwap
-                              ? "Recent Yield Data"
+                              ? "Possible Yield (in Kg)"
                               : "Recent Identification Data",
                           style: fonts.titleFont,
+                          textAlign: TextAlign.center,
                         ),
                       ),
                     ),
@@ -380,161 +373,33 @@ class _DashbardScreenState extends State<DashbardScreen> {
                   const SizedBox(height: 10),
                   isSwap
                       ? recentYield.isNotEmpty
-                          ? GestureDetector(
-                              onLongPress: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: const Text(
-                                        'Edit Recent Yields',
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      content: SingleChildScrollView(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            TextFormField(
-                                              textAlign: TextAlign.center,
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              controller: field1Controller,
-                                              decoration: InputDecoration(
-                                                  labelText:
-                                                      dateList[0].toString()),
-                                            ),
-                                            TextFormField(
-                                              textAlign: TextAlign.center,
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              controller: field2Controller,
-                                              decoration: InputDecoration(
-                                                  labelText:
-                                                      dateList[1].toString()),
-                                            ),
-                                            TextFormField(
-                                              textAlign: TextAlign.center,
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              controller: field3Controller,
-                                              decoration: InputDecoration(
-                                                  labelText:
-                                                      dateList[2].toString()),
-                                            ),
-                                            TextFormField(
-                                              textAlign: TextAlign.center,
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              controller: field4Controller,
-                                              decoration: InputDecoration(
-                                                  labelText:
-                                                      dateList[3].toString()),
-                                            ),
-                                            TextFormField(
-                                              textAlign: TextAlign.center,
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              controller: field5Controller,
-                                              decoration: InputDecoration(
-                                                  labelText:
-                                                      dateList[4].toString()),
-                                            ),
-                                            const SizedBox(height: 20),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor: Colors.red,
-                                                  ),
-                                                  onPressed: () {
-                                                    getDates();
-                                                    for (var i = 0;
-                                                        i < yieldList.length;
-                                                        i++) {
-                                                      debugPrint(yieldList[i]);
-                                                    }
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                  child: const Text('Cancel'),
-                                                ),
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      yieldList[0] =
-                                                          field1Controller.text;
-                                                      yieldList[1] =
-                                                          field2Controller.text;
-                                                      yieldList[2] =
-                                                          field3Controller.text;
-                                                      yieldList[3] =
-                                                          field4Controller.text;
-                                                      yieldList[4] =
-                                                          field5Controller.text;
-                                                    });
-                                                    updateYields();
-
-                                                    setState(() {
-                                                      List<int> intList =
-                                                          yieldList
-                                                              .map((str) =>
-                                                                  int.parse(
-                                                                      str))
-                                                              .toList();
-                                                      maxNumber = intList
-                                                          .reduce((currentMax,
-                                                                  number) =>
-                                                              currentMax >
-                                                                      number
-                                                                  ? currentMax
-                                                                  : number);
-                                                    });
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                  child: const Text('Save'),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(bottom: 60),
-                                padding:
-                                    const EdgeInsets.only(top: 20, bottom: 10),
-                                height: 200,
-                                width: 350,
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(20),
+                          ? Container(
+                              margin: const EdgeInsets.only(
+                                  bottom: 60, left: 20, right: 20),
+                              padding:
+                                  const EdgeInsets.only(top: 20, bottom: 10),
+                              height: 192,
+                              width: MediaQuery.of(context).size.width,
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(20),
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Color(0xFF000000),
+                                    offset: Offset(-1, 0),
+                                    blurRadius: 13,
+                                    spreadRadius: -7,
                                   ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Color(0xFF000000),
-                                      offset: Offset(-1, 0),
-                                      blurRadius: 13,
-                                      spreadRadius: -7,
-                                    ),
-                                  ],
-                                ),
-                                child: ResultBarGraph(
-                                  maxNum: maxNumber,
-                                  dateList: dateList,
-                                  quantityPerClass: [
-                                    double.parse(yieldList[0]),
-                                    double.parse(yieldList[1]),
-                                    double.parse(yieldList[2]),
-                                    double.parse(yieldList[3]),
-                                    double.parse(yieldList[4]),
-                                  ],
-                                ),
+                                ],
+                              ),
+                              child: ResultBarGraph(
+                                maxNum: maxNumber,
+                                dateList: dateList,
+                                quantityPerClass: yieldList
+                                    .map((item) => double.tryParse(item) ?? 0.0)
+                                    .toList(),
                               ),
                             )
                           : Container(
@@ -572,110 +437,41 @@ class _DashbardScreenState extends State<DashbardScreen> {
                                 ),
                               ),
                             )
-                      : recents.isNotEmpty
+                      : totalsByDate.isNotEmpty
                           ? CarouselSlider.builder(
-                              itemCount: recents.length,
+                              itemCount: totalsByDate.length,
                               options: CarouselOptions(
                                 height: 250,
-                                initialPage: (recents.length / 2).ceil(),
+                                initialPage: (totalsByDate.length / 2).ceil(),
                                 enlargeCenterPage: true,
                                 viewportFraction: 1,
                               ),
                               itemBuilder: (context, index, realIndex) {
-                                Timestamp t = recents[index]['date'];
-                                DateTime d = t.toDate();
-                                String date =
-                                    DateFormat.yMMMd().add_jm().format(d);
+                                // Timestamp t = recents[index]['date'];
+                                // DateTime d = t.toDate();
+                                // String date =
+                                //     DateFormat.yMMMd().add_jm().format(d);
+                                MapEntry<DateTime, Map<String, int>> entry =
+                                    totalsByDate.entries.toList()[index];
 
-                                return GestureDetector(
-                                  onLongPress: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                            title: const Text(
-                                              'Delete this entry?',
-                                              textAlign: TextAlign.center,
-                                            ),
-                                            content: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceAround,
-                                              children: [
-                                                ElevatedButton(
-                                                  onPressed: () async {
-                                                    QuerySnapshot<
-                                                            Map<String,
-                                                                dynamic>>
-                                                        querySnapshot =
-                                                        await FirebaseFirestore
-                                                            .instance
-                                                            .collection(
-                                                                'recents_identification')
-                                                            .where('userId',
-                                                                isEqualTo: recents[
-                                                                        index]
-                                                                    ['userId'])
-                                                            .get();
+                                // Formatting the date
+                                String date = DateFormat.yMMMd()
+                                    .add_jm()
+                                    .format(entry.key);
 
-                                                    if (querySnapshot
-                                                        .docs.isNotEmpty) {
-                                                      // Get the document reference and delete it
-                                                      DocumentReference<
-                                                              Map<String,
-                                                                  dynamic>>
-                                                          docRef = querySnapshot
-                                                              .docs
-                                                              .first
-                                                              .reference;
-                                                      docRef
-                                                          .delete()
-                                                          .then((value) {
-                                                        setState(() {
-                                                          recents
-                                                              .removeAt(index);
-                                                        });
-                                                        print(
-                                                            'Document successfully deleted!');
-                                                      }).catchError((error) {
-                                                        print(
-                                                            'Error deleting document: $error');
-                                                      });
-                                                    } else {
-                                                      print(
-                                                          'No matching document found.');
-                                                    }
-
-                                                    Navigator.pop(
-                                                        context); // Close the dialog
-                                                  },
-                                                  child: const Text('Yes'),
-                                                ),
-                                                ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor: Colors.red,
-                                                  ),
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: const Text('No'),
-                                                ),
-                                              ],
-                                            ));
-                                      },
-                                    );
-                                  },
-                                  child: Recents(
-                                    anthrachnose: recents[index]['anthracnose']
-                                        .toString(),
-                                    earlyBlight: recents[index]['earlyBlight']
-                                        .toString(),
-                                    leafSpot:
-                                        recents[index]['leafSpot'].toString(),
-                                    healthy:
-                                        recents[index]['healthy'].toString(),
-                                    date: date,
-                                  ),
+                                // Extracting values from the inner map
+                                int anthracnose =
+                                    entry.value['anthracnose'] ?? 0;
+                                int earlyBlight =
+                                    entry.value['earlyBlight'] ?? 0;
+                                int leafSpot = entry.value['leafSpot'] ?? 0;
+                                int healthy = entry.value['healthy'] ?? 0;
+                                return Recents(
+                                  anthrachnose: anthracnose.toString(),
+                                  earlyBlight: earlyBlight.toString(),
+                                  leafSpot: leafSpot.toString(),
+                                  healthy: healthy.toString(),
+                                  date: date,
                                 );
                               },
                             )

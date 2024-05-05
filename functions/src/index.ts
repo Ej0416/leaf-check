@@ -59,18 +59,5 @@ async function saveCurrentWeatherBased() {
     clouds_all: data["clouds"]["all"],
     rain: rain,
   });
-
-  // await fs.collection("daily_weather_per_hour").add({
-  //   // data,
-  //   date: FieldValue.serverTimestamp(),
-  //   temp: data["main"]["temp"],
-  //   temp_min: data["main"]["temp_min"],
-  //   temp_max: data["main"]["temp_max"],
-  //   pressure: data["main"]["pressure"],
-  //   humidity: data["main"]["humidity"],
-  //   wind_speed: data["wind"]["speed"],
-  //   clouds_all: data["clouds"]["all"],
-  //   rain: rain,
-  // });
 }
 
