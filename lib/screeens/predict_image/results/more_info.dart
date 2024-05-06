@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gtext/gtext.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:simplytranslate/simplytranslate.dart';
 
 class MoreInfo extends StatefulWidget {
   MoreInfo({
@@ -11,15 +13,19 @@ class MoreInfo extends StatefulWidget {
     required this.img,
     required this.predictionconf,
   });
+
   String title;
   final XFile img;
   final String predictionconf;
+  late String language = '';
 
   @override
   State<MoreInfo> createState() => _MoreInfoState();
 }
 
 class _MoreInfoState extends State<MoreInfo> {
+  final vt = SimplyTranslator(EngineType.libre);
+
   var db = FirebaseFirestore.instance;
   late String description = '';
   late List organic = [];
@@ -28,6 +34,10 @@ class _MoreInfoState extends State<MoreInfo> {
   late bool notHeakthyOrInvalid = false;
 
   Future getDiseaseDesc(String disease) async {
+    description = '';
+    organic = [];
+    chemical = [];
+
     final diseaseRef = db.collection('disease');
     final doc = await diseaseRef.where('name', isEqualTo: disease).get();
     final id = doc.docs.first.id;
@@ -57,9 +67,24 @@ class _MoreInfoState extends State<MoreInfo> {
         chemical = desc['chemical'];
         classF = desc['class'];
       });
-      debugPrint('has disease');
+
       debugPrint(notHeakthyOrInvalid.toString());
     }
+  }
+
+  bool light = true;
+  late String language = 'en';
+
+  changeLang() {
+    setState(() {
+      if (language == 'en') {
+        language = 'ceb';
+      } else {
+        language = 'en';
+      }
+    });
+    getDiseaseDesc(widget.title);
+    debugPrint('current languafe is: $language');
   }
 
   @override
@@ -90,16 +115,43 @@ class _MoreInfoState extends State<MoreInfo> {
           ),
         ),
         foregroundColor: Colors.white,
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color.fromARGB(68, 0, 0, 0),
         elevation: 0,
+        actions: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                language == 'en' ? "English" : "Cebuano",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              Switch(
+                value: light,
+                activeColor: const Color.fromARGB(255, 44, 43, 43),
+                onChanged: (bool value) {
+                  setState(() {
+                    light = value;
+                    language = light ? 'en' : 'ceb';
+                  });
+                  debugPrint('current languafe is: $language');
+
+                  // changeLang();
+                  getDiseaseDesc(widget.title);
+                },
+              ),
+            ],
+          )
+        ],
       ),
-      body: Stack(
-        children: [
-          Align(
-            alignment: Alignment.topCenter,
-            child: Container(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
               color: Colors.green.shade400,
-              height: MediaQuery.of(context).size.height * .4,
+              height: 300,
               width: MediaQuery.of(context).size.width,
               child: Image.file(
                 File(widget.img.path),
@@ -107,11 +159,8 @@ class _MoreInfoState extends State<MoreInfo> {
                 fit: BoxFit.contain,
               ),
             ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * .6,
+            Container(
+              // height: MediaQuery.of(context).size.height * .6,
               width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -147,6 +196,7 @@ class _MoreInfoState extends State<MoreInfo> {
                       children: [
                         Container(
                           margin: const EdgeInsets.only(left: 10),
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -155,7 +205,7 @@ class _MoreInfoState extends State<MoreInfo> {
                                     ? "Disease Identified"
                                     : widget.title == 'Healthy'
                                         ? 'Plant is healthy'
-                                        : 'Image is Invalid',
+                                        : 'Disease Unknown',
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -167,7 +217,7 @@ class _MoreInfoState extends State<MoreInfo> {
                                     ? " We identified the disease on your Eggplant"
                                     : widget.title == 'Healthy'
                                         ? 'We identified that your Plant is healthy'
-                                        : 'This image is invalid',
+                                        : 'The disease is unknown',
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontStyle: FontStyle.italic,
@@ -211,57 +261,51 @@ class _MoreInfoState extends State<MoreInfo> {
                         const Divider(
                           thickness: 1.5,
                         ),
-                        SizedBox(
-                          height: 300,
-                          child: SingleChildScrollView(
-                            child: notHeakthyOrInvalid == false
-                                ? Column(
-                                    children: [
-                                      content(description, 'In a Nutshell'),
-                                      content(organic, 'Organic Control'),
-                                      content(chemical, 'Chemical Control'),
-                                    ],
-                                  )
-                                : Column(
-                                    children: [
-                                      const SizedBox(height: 20),
-                                      Icon(
-                                        widget.title == 'Healthy'
-                                            ? Icons.health_and_safety_outlined
-                                            : Icons.warning_amber_rounded,
-                                        size: 70,
-                                        color: widget.title == 'Healthy'
-                                            ? const Color(0xff9fc490)
-                                            : const Color.fromARGB(
-                                                255, 200, 176, 57),
-                                      ),
-                                      const SizedBox(height: 20),
-                                      Text(
-                                        description,
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          height: 1.5,
-                                        ),
-                                        textAlign: TextAlign.justify,
-                                      ),
-                                    ],
+                        notHeakthyOrInvalid == false
+                            ? Column(
+                                children: [
+                                  content(description, 'In a Nutshell'),
+                                  content(organic, 'Organic Control'),
+                                  content(chemical, 'Chemical Control'),
+                                ],
+                              )
+                            : Column(
+                                children: [
+                                  const SizedBox(height: 20),
+                                  Icon(
+                                    widget.title == 'Healthy'
+                                        ? Icons.health_and_safety_outlined
+                                        : Icons.warning_amber_rounded,
+                                    size: 70,
+                                    color: widget.title == 'Healthy'
+                                        ? const Color(0xff9fc490)
+                                        : const Color.fromARGB(
+                                            255, 200, 176, 57),
                                   ),
-                          ),
-                        ),
+                                  const SizedBox(height: 20),
+                                  Text(
+                                    description,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      height: 1.5,
+                                    ),
+                                    textAlign: TextAlign.justify,
+                                  ),
+                                ],
+                              ),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Container content(dynamic content, String title) {
-    debugPrint('content value if arrays${content.length.toString()}');
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       width: MediaQuery.of(context).size.width,
@@ -285,21 +329,25 @@ class _MoreInfoState extends State<MoreInfo> {
                   children: [
                     for (int i = 0; i < content.length; i++)
                       Padding(
-                        padding: const EdgeInsets.only(left: 20),
-                        child: Text(
-                          "\u25cf ${content[i]} \n",
+                        padding: const EdgeInsets.only(left: 20, bottom: 10),
+                        child: GText(
+                          "\u25cf ${content[i]}",
+                          toLang: language,
                           style: const TextStyle(
                             fontSize: 18,
+                            height: 1.3,
                           ),
                           textAlign: TextAlign.justify,
                         ),
                       ),
                   ],
                 )
-              : Text(
+              : GText(
                   content.toString(),
+                  toLang: language,
                   style: const TextStyle(
                     fontSize: 18,
+                    height: 1.5,
                   ),
                   textAlign: TextAlign.justify,
                 ),

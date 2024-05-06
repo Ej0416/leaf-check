@@ -158,7 +158,7 @@ class _ResultPageState extends State<ResultPage> {
           appBar: AppBar(
             title: const Text(
               "Results",
-              style: TextStyle(color: Colors.black),
+              style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
             ),
             backgroundColor: Colors.green.shade400,
             elevation: 1,
@@ -166,7 +166,7 @@ class _ResultPageState extends State<ResultPage> {
             leading: IconButton(
               icon: const Icon(
                 Icons.arrow_back_ios_new,
-                color: Colors.black,
+                color: Color.fromARGB(255, 255, 255, 255),
               ),
               onPressed: () {
                 Navigator.of(context)
