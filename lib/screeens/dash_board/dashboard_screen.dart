@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:leafcheck_project_v2/screeens/toPDF/to_pdf.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 import '../../services/firebase_helper.dart';
@@ -447,10 +448,6 @@ class _DashbardScreenState extends State<DashbardScreen> {
                                 viewportFraction: 1,
                               ),
                               itemBuilder: (context, index, realIndex) {
-                                // Timestamp t = recents[index]['date'];
-                                // DateTime d = t.toDate();
-                                // String date =
-                                //     DateFormat.yMMMd().add_jm().format(d);
                                 MapEntry<DateTime, Map<String, int>> entry =
                                     totalsByDate.entries.toList()[index];
 
@@ -551,6 +548,27 @@ class _DashbardScreenState extends State<DashbardScreen> {
                           logoutUser(context);
                         },
                         child: const Text('Logout'),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 150,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          elevation: 5,
+                          backgroundColor:
+                              const Color.fromARGB(255, 40, 170, 217),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        onPressed: () {
+                          debugPrint('test');
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (BuildContext context) {
+                            return const ToPDF();
+                          }));
+                        },
+                        child: const Text('Print All Data'),
                       ),
                     ),
                   ],

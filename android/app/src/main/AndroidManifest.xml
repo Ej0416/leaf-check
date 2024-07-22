@@ -1,9 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.leafcheck_project_v2">
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/> 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
    <application
         android:label="LeafCheck"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -14,7 +14,7 @@ class MoreInfo extends StatefulWidget {
     required this.predictionconf,
   });
 
-  String title;
+  final String title;
   final XFile img;
   final String predictionconf;
   late String language = '';

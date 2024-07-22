@@ -4,15 +4,6 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
-/// Default [FirebaseOptions] for use with your Firebase apps.
-///
-/// Example:
-/// ```dart
-/// import 'firebase_options.dart';
-/// // ...
-/// await Firebase.initializeApp(
-///   options: DefaultFirebaseOptions.currentPlatform,
-/// );
 /// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
@@ -63,7 +54,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '30747254339',
     projectId: 'leaf-check-storage',
     storageBucket: 'leaf-check-storage.appspot.com',
-    iosClientId: '30747254339-gpf2927n9n5hplrcbikq3fpia7oukqup.apps.googleusercontent.com',
+    iosClientId:
+        '30747254339-gpf2927n9n5hplrcbikq3fpia7oukqup.apps.googleusercontent.com',
     iosBundleId: 'com.example.leafcheckProjectV2',
   );
 }
